@@ -52,6 +52,6 @@ move <filename>
 ### Example:
 move report.pdf
 
-# 📍 Notes:
+# 📍 Notes: SUMMARIZE and MOVE commands are not working yet
 # - Command parsing is handled in the `Get Data` and `Switch` modules.
 # - The flow routes the command to the appropriate Google Drive operation (list, delete, move) and replies to the user accordingly.
