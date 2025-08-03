@@ -1,0 +1,394 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cd79aca4-c258-4f34-9388-71fd4d7766c4",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "List",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "be99bc31-6138-4ea7-be01-061c1a1de92f",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "Delete",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8e3b80d4-3cbb-44d2-9cff-818bf4e309a6",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "Move",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "e2cb0c63-c288-476d-840a-79d86d3b07e9",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/whatsapp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4c5d2035-b6dd-4926-81d4-512947638e17",
+      "name": "Twilio Webhook",
+      "webhookId": "8cae26fc-31ac-44ac-8f3c-760c7bd794d9"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map((item) => item.json);\nconst updatedItems = items.map((item) => {\n  const userNo = item.body.WaId;\n  const body = item.body.Body.trim(); // Get WhatsApp message text\n  const parts = body.split(\" \");\n  return {\n    json: {\n      command: parts[0],\n      args: parts.slice(1),\n      fromUser: userNo,\n    },\n  };\n});\nreturn updatedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "437555db-e581-4657-96ba-3402a9bb448f",
+      "name": "Get Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        208
+      ],
+      "id": "d018a95e-70cd-48c8-824f-35bffdd6cdcc",
+      "name": "MOVE"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        864,
+        0
+      ],
+      "id": "933eeb7e-53b2-4ed6-b605-21f15ebffb8b",
+      "name": "Delete a file",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TtOuSBP3YBUj7wUb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const list = $input.all().map((item) => item.json);\nconst fromUser = $(\"Get Data\")\n  .all()\n  .map((item) => item.json.fromUser);\n\nreturn { name: `File ${list.map((item) => item.name)} found successfully`, fromUser };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        -176
+      ],
+      "id": "ec3a9c81-4d59-4ba5-b7a5-9860fd8c263b",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const list = $input.all().map((item) => item.json);\nconst fromUser = $(\"Get Data\")\n  .all()\n  .map((item) => item.json.fromUser);\n\nreturn { name: `File ${list.map((item) => item.name)} deleted successfully`, fromUser };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "142094b7-a977-4628-8835-5df06825b965",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.args }}",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        832,
+        -176
+      ],
+      "id": "1d65cf4a-11f9-408f-9400-186a39473d79",
+      "name": "List",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TtOuSBP3YBUj7wUb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.args[0] }}",
+        "limit": 1,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "83ece67c-8573-4c2f-a223-46e43b019cbb",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TtOuSBP3YBUj7wUb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "+14155238886",
+        "to": "={{ $json.fromUser }}",
+        "toWhatsapp": true,
+        "message": "={{ $json.name }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        -176
+      ],
+      "id": "27417bf1-33c2-4db3-9954-cd9ca987401a",
+      "name": "Reply User",
+      "credentials": {
+        "twilioApi": {
+          "id": "MzOdcnWmCde8ji5A",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "+14155238886",
+        "to": "={{ $json.fromUser }}",
+        "toWhatsapp": true,
+        "message": "={{ $json.name }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "4454c684-b999-41ef-b1cd-200412c2e5e0",
+      "name": "Send an SMS/MMS/WhatsApp message",
+      "credentials": {
+        "twilioApi": {
+          "id": "MzOdcnWmCde8ji5A",
+          "name": "Twilio account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MOVE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Reply User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Send an SMS/MMS/WhatsApp message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e145913-8c85-4fae-8ebb-b21a52b05d3c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "12d94645e56f694de4ef63ab98df7475453f6aef180e3ec7f440e2279c3f6ff0"
+  },
+  "id": "B6yTdFf1hjQ2aDOH",
+  "tags": []
+}
