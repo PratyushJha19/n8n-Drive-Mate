@@ -53,5 +53,15 @@ move <filename>
 move report.pdf
 
 # 📍 Notes: SUMMARIZE and MOVE commands are not working yet
-# - Command parsing is handled in the `Get Data` and `Switch` modules.
-# - The flow routes the command to the appropriate Google Drive operation (list, delete, move) and replies to the user accordingly.
+### - Command parsing is handled in the `Get Data` and `Switch` modules.
+### - The flow routes the command to the appropriate Google Drive operation (list, delete, move) and replies to the user accordingly.
+
+ ---
+
+# Blockers
+
+## 1. The MOVE command
+I couldn't add the MOVE command because I didn’t understand the complete flow and structure needed to move files properly on Google Drive using n8n. I wasn’t clear on how to get and use folder IDs, and how to pass that information via WhatsApp commands.
+
+## 2. The SUMMARIZE command using AI APIs
+I couldn’t integrate the SUMMARIZE command because it required using AI APIs like OpenAI or Gemini to generate summaries of files or text. These APIs needed an API key with a paid account, and I’m not in a position to make payments right now. Free alternatives either weren’t reliable or didn’t integrate well with n8n for my use case.
